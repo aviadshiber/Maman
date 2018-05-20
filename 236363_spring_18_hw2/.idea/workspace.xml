@@ -16,8 +16,8 @@
       <file leaf-file-name="Solution.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/techflix/Solution.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="325">
-              <caret line="380" column="5" selection-start-line="380" selection-start-column="5" selection-end-line="380" selection-end-column="5" />
+            <state relative-caret-position="368">
+              <caret line="280" column="5" lean-forward="true" selection-start-line="280" selection-start-column="5" selection-end-line="280" selection-end-column="5" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#1554#1555#0" expanded="true" />
@@ -65,7 +65,7 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -246,12 +246,12 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="JUnit.SimpleTest.simpleTestCreateUser">
+  <component name="RunManager" selected="Application.Example (1)">
     <configuration default="true" type="Applet" factoryName="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
     </configuration>
-    <configuration name="Example" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="netclicks.Example" />
+    <configuration name="Example (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="techflix.Example" />
       <module name="236363_spring_18_hw2" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <extension name="coverage">
@@ -395,19 +395,19 @@
       <listeners />
     </configuration>
     <list>
-      <item itemvalue="Application.Example" />
       <item itemvalue="JUnit.TestAdvancedApi.testSimilarUsers" />
       <item itemvalue="JUnit.TestAdvancedApi.testInfluencingViewers" />
       <item itemvalue="JUnit.TechFlixTestSuit" />
       <item itemvalue="JUnit.SimpleTest.simpleTestCreateUser" />
+      <item itemvalue="Application.Example (1)" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.Example (1)" />
         <item itemvalue="JUnit.SimpleTest.simpleTestCreateUser" />
         <item itemvalue="JUnit.TechFlixTestSuit" />
         <item itemvalue="JUnit.TestAdvancedApi.testInfluencingViewers" />
         <item itemvalue="JUnit.TestAdvancedApi.testSimilarUsers" />
-        <item itemvalue="Application.Example" />
       </list>
     </recent_temporary>
   </component>
@@ -426,7 +426,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1520848152603</updated>
-      <workItem from="1526793509525" duration="109000" />
+      <workItem from="1526793509525" duration="224000" />
     </task>
     <task id="LOCAL-00001" summary="commit">
       <created>1521581079800</created>
@@ -515,10 +515,10 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="109000" />
+    <option name="totallyTimeSpent" value="224000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
+    <frame x="-1288" y="-8" width="1296" height="696" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
@@ -526,15 +526,15 @@
       <window_info anchor="right" id="Palette&#9;" order="3" />
       <window_info id="Image Layers" order="2" />
       <window_info anchor="right" id="Capture Analysis" order="3" />
-      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.503183" side_tool="true" visible="true" weight="0.22574627" />
+      <window_info anchor="bottom" id="Event Log" order="7" sideWeight="0.503183" side_tool="true" weight="0.18130842" />
       <window_info anchor="right" id="Maven Projects" order="3" />
       <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" sideWeight="0.49045092" weight="0.3406364" />
+      <window_info anchor="bottom" id="Version Control" order="7" sideWeight="0.49045092" weight="0.3406364" />
       <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49681696" weight="0.22604166" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Capture Tool" order="2" />
       <window_info id="Designer" order="2" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.3562753" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.35598704" />
       <window_info anchor="bottom" id="SonarLint" />
       <window_info anchor="right" id="Database" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -817,8 +817,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/techflix/Solution.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="325">
-          <caret line="380" column="5" selection-start-line="380" selection-start-column="5" selection-end-line="380" selection-end-column="5" />
+        <state relative-caret-position="368">
+          <caret line="280" column="5" lean-forward="true" selection-start-line="280" selection-start-column="5" selection-end-line="280" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#1554#1555#0" expanded="true" />

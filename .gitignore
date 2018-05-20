@@ -21,3 +21,5 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+236363_spring_18_hw2/.idea/*
+236363_spring_18_hw2/target/**

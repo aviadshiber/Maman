@@ -16,6 +16,7 @@ import java.util.List;
 
 public class Solution {
 
+
     public static final String WATCHED = "watched";
     public static final String MOVIES = "movies";
     public static final String RANKS = "ranks";
@@ -379,6 +380,8 @@ public class Solution {
         }
         return list;
     }
+
+
 }
 
 
