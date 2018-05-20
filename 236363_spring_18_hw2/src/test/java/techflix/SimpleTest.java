@@ -2,14 +2,13 @@ package techflix;
 
 import org.junit.Test;
 import techflix.business.Movie;
+import techflix.business.MovieRating;
 import techflix.business.ReturnValue;
 import techflix.business.Viewer;
 import techflix.data.DBConnector;
 
-import javax.swing.text.View;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import static org.junit.Assert.assertEquals;
@@ -61,13 +60,34 @@ public class SimpleTest extends AbstractTest {
         v2.setName("shahar");
         Solution.updateViewer(v2);
         printTable("viewers");
-
+        v2.setName("aviad");
+        v2.setId(2);
+        actual = Solution.createViewer(v2);
+        assertEquals(OK, actual);
+        printTable("viewers");
         actual=Solution.addView(1,1);
         assertEquals(ReturnValue.OK,actual);
         actual=Solution.addView(1,1);
         assertEquals(ReturnValue.ALREADY_EXISTS,actual);
+        System.out.println(Solution.addView(1,2).toString());
         printTable("ranks");
+        Solution.removeView(1,2);
+        actual=Solution.addView(2,1);
+        printTable("ranks");
+        assertEquals(2,(int)Solution.getMovieViewCount(1));
+        System.out.println(Solution.addMovieRating(1,1,MovieRating.LIKE));
+        printTable("ranks");
+       // System.out.println(Solution.removeMovieRating(1,1));
 
+        assertEquals(1,Solution.getMovieLikesCount(1));
+        assertEquals(0,Solution.getMovieDislikesCount(1));
+        printTable("ranks");
+        printTable("viewers");
+        printTable("movies");
+        System.out.println("the id of the first viewer how is similar to 1:"+ Solution.getSimilarViewers(1).get(0));
+        System.out.println("the id of the first viewer how is similar to 2:"+ Solution.getSimilarViewers(2).get(0));
+        System.out.println("most Influencing Viewers:");
+        Solution.mostInfluencingViewers().forEach(id -> System.out.println(id));
     }
 
     private static void printTable(String table) {

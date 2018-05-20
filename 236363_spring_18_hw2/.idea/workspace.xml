@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="8b0388d7-2171-465d-8344-72d31fe4f2e9" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/techflix/Solution.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/techflix/Solution.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/techflix/SimpleTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/techflix/SimpleTest.java" afterDir="false" />
     </list>
@@ -17,11 +16,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
-      <file leaf-file-name="Solution.java" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Solution.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/techflix/Solution.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="95">
-              <caret line="139" column="37" selection-start-line="139" selection-start-column="37" selection-end-line="139" selection-end-column="37" />
+            <state relative-caret-position="174">
+              <caret line="186" column="40" lean-forward="true" selection-start-line="186" selection-start-column="40" selection-end-line="186" selection-end-column="40" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="e#3171#3172#0" expanded="true" />
@@ -50,8 +49,8 @@
       <file leaf-file-name="DBConnector.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/techflix/data/DBConnector.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-81">
-              <caret line="124" column="48" lean-forward="true" selection-start-line="124" selection-start-column="48" selection-end-line="124" selection-end-column="48" />
+            <state relative-caret-position="27">
+              <caret line="93" column="23" selection-start-line="93" selection-start-column="23" selection-end-line="93" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -65,11 +64,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SimpleTest.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="SimpleTest.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/test/java/techflix/SimpleTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="104">
-              <caret line="65" column="44" selection-start-line="65" selection-start-column="44" selection-end-line="65" selection-end-column="44" />
+            <state relative-caret-position="249">
+              <caret line="89" column="80" lean-forward="true" selection-start-line="89" selection-start-column="80" selection-end-line="89" selection-end-column="80" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -130,6 +129,7 @@
       <find>resultset</find>
       <find>INSERT</find>
       <find>COUNT</find>
+      <find>PRIMA</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -164,8 +164,8 @@
         <option value="$PROJECT_DIR$/src/test/java/techflix/TechFlixTestSuit.java" />
         <option value="$PROJECT_DIR$/src/test/java/techflix/TestBasicApi.java" />
         <option value="$PROJECT_DIR$/src/test/java/techflix/TestAdvancedApi.java" />
-        <option value="$PROJECT_DIR$/src/test/java/techflix/SimpleTest.java" />
         <option value="$PROJECT_DIR$/src/main/java/techflix/Solution.java" />
+        <option value="$PROJECT_DIR$/src/test/java/techflix/SimpleTest.java" />
       </list>
     </option>
   </component>
@@ -290,6 +290,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
+    <property name="extract.method.default.visibility" value="private" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.15" />
@@ -493,7 +494,7 @@
       <workItem from="1526793509525" duration="224000" />
       <workItem from="1526794070456" duration="1450000" />
       <workItem from="1526795573749" duration="4422000" />
-      <workItem from="1526810815497" duration="19224000" />
+      <workItem from="1526810815497" duration="27426000" />
     </task>
     <task id="LOCAL-00001" summary="commit">
       <created>1521581079800</created>
@@ -562,39 +563,39 @@
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 19h 47m 50s.xml">
+    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 22h 34m 36s.xml">
       <configuration name="All in 236363_spring_18_hw2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 19h 50m 28s.xml">
+    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 22h 59m 28s.xml">
       <configuration name="All in 236363_spring_18_hw2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 19h 52m 25s.xml">
+    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 23h 00m 10s.xml">
       <configuration name="All in 236363_spring_18_hw2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 19h 53m 44s.xml">
+    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 23h 02m 27s.xml">
       <configuration name="All in 236363_spring_18_hw2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 19h 55m 41s.xml">
+    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 23h 04m 24s.xml">
       <configuration name="All in 236363_spring_18_hw2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 19h 56m 21s.xml">
+    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 23h 05m 07s.xml">
       <configuration name="All in 236363_spring_18_hw2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 19h 57m 38s.xml">
+    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 23h 07m 49s.xml">
       <configuration name="All in 236363_spring_18_hw2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 19h 58m 47s.xml">
+    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 23h 07m 56s.xml">
       <configuration name="All in 236363_spring_18_hw2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 20h 00m 48s.xml">
+    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 23h 08m 44s.xml">
       <configuration name="All in 236363_spring_18_hw2" configurationId="JUnit" />
     </history-entry>
-    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 20h 01m 01s.xml">
+    <history-entry file="All_in_236363_spring_18_hw2 - 2018.05.20 at 23h 24m 20s.xml">
       <configuration name="All in 236363_spring_18_hw2" configurationId="JUnit" />
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="25320000" />
+    <option name="totallyTimeSpent" value="33522000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
@@ -602,7 +603,7 @@
     <layout>
       <window_info anchor="right" id="Palette" order="3" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info active="true" anchor="bottom" id="Messages" order="15" sideWeight="0.49893898" visible="true" weight="0.3283582" />
+      <window_info anchor="bottom" id="Messages" order="15" sideWeight="0.49893898" weight="0.3283582" />
       <window_info anchor="right" id="Palette&#9;" order="8" />
       <window_info id="Image Layers" order="6" />
       <window_info anchor="right" id="Capture Analysis" order="4" />
@@ -610,7 +611,7 @@
       <window_info anchor="right" id="Maven Projects" order="5" />
       <window_info anchor="bottom" id="Database Changes" order="14" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="11" sideWeight="0.49045092" weight="0.33966482" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49681696" weight="0.41791046" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49681696" weight="0.5727612" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Capture Tool" order="5" />
       <window_info id="Designer" order="2" />
@@ -637,7 +638,7 @@
       <window_info id="Designer" order="2" />
       <window_info anchor="right" id="Palette" order="3" />
       <window_info id="Image Layers" order="6" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49681696" visible="true" weight="0.41791046" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49681696" visible="true" weight="0.5727612" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info id="UI Designer" order="3" />
@@ -701,19 +702,58 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/techflix/Solution.java</url>
-          <line>115</line>
+          <line>190</line>
           <properties />
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/techflix/Solution.java</url>
-          <line>220</line>
-          <properties />
-          <option name="timeStamp" value="6" />
+          <option name="timeStamp" value="14" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="8" />
+      <option name="time" value="15" />
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="JUnit">
+        <watch expression="String.format(&#10;                    &quot;UPDATE %s SET (%s ='%s') WHERE %s = %d AND %s = %d&quot;,&#10;                    RANKS, ISLIKED, rating.toString(), RANK_VIEWID_COL, viewerId, RANK_MOVIEID_COL, movieId&#10;                    )" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="debuggerHistoryManager">
+    <expressions id="evaluateExpression">
+      <expression>
+        <expression-string>&quot;CREATE TABLE ranks(\n&quot; +
+                    &quot;viewid integer NOT NULL ,\n&quot; +
+                    &quot;movieid integer NOT NULL ,\n&quot; +
+                    &quot;isliked liked,\n&quot; +
+                    &quot;CONSTRAINT pk_MovieAndView PRIMARY KEY (movieid,viewid),\n&quot; +
+                    &quot;CONSTRAINT fk_movie FOREIGN KEY (movieid)\n&quot; +
+                    &quot;REFERENCES movies (mid)\n&quot; +
+                    &quot;ON UPDATE CASCADE\n&quot; +
+                    &quot;ON DELETE CASCADE,\n&quot; +
+                    &quot;CONSTRAINT fk_viewrs FOREIGN KEY (viewid)\n&quot; +
+                    &quot;REFERENCES viewers (vid)\n&quot; +
+                    &quot;ON UPDATE CASCADE\n&quot; +
+                    &quot;ON DELETE CASCADE\n&quot; +
+                    &quot;)&quot;</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>&quot;CREATE TABLE ranks(\n&quot; +
+                    &quot;viewid integer NOT NULL ,\n&quot; +
+                    &quot;movieid integer NOT NULL ,\n&quot; +
+                    &quot;isliked liked,\n&quot; +
+                    &quot;CONSTRAINT pk_MovieAndView PRIMARY KEY (movieid,viewid),\n&quot; +
+                    &quot;CONSTRAINT fk_movie FOREIGN KEY (movieid)\n&quot; +
+                    &quot;REFERENCES movies (mid)\n&quot; +
+                    &quot;ON UPDATE CASCADE\n&quot; +
+                    &quot;ON DELETE CASCADE,\n&quot; +
+                    &quot;CONSTRAINT fk_viewrs FOREIGN KEY (viewid)\n&quot; +
+                    &quot;REFERENCES viewers (vid)\n&quot; +
+                    &quot;ON UPDATE CASCADE\n&quot; +
+                    &quot;ON DELETE CASCADE\n&quot; +
+                    &quot;)&quot;)</expression-string>
+        <language-id>JAVA</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/test/java/techflix/TestUtils.java" />
@@ -921,13 +961,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/techflix/data/DBConnector.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-81">
-          <caret line="124" column="48" lean-forward="true" selection-start-line="124" selection-start-column="48" selection-end-line="124" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/techflix/Example.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-378">
@@ -935,20 +968,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/test/java/techflix/SimpleTest.java">
+    <entry file="file://$PROJECT_DIR$/src/main/java/techflix/data/DBConnector.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="104">
-          <caret line="65" column="44" selection-start-line="65" selection-start-column="44" selection-end-line="65" selection-end-column="44" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
+        <state relative-caret-position="27">
+          <caret line="93" column="23" selection-start-line="93" selection-start-column="23" selection-end-line="93" selection-end-column="23" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/techflix/Solution.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="95">
-          <caret line="139" column="37" selection-start-line="139" selection-start-column="37" selection-end-line="139" selection-end-column="37" />
+        <state relative-caret-position="174">
+          <caret line="186" column="40" lean-forward="true" selection-start-line="186" selection-start-column="40" selection-end-line="186" selection-end-column="40" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="e#3171#3172#0" expanded="true" />
@@ -957,6 +987,16 @@
             <element signature="e#4012#4013#0" expanded="true" />
             <element signature="e#7024#7025#0" expanded="true" />
             <element signature="e#7088#7089#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/test/java/techflix/SimpleTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="249">
+          <caret line="89" column="80" lean-forward="true" selection-start-line="89" selection-start-column="80" selection-end-line="89" selection-end-column="80" />
+          <folding>
+            <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>

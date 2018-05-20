@@ -10,11 +10,11 @@ import techflix.data.PostgresSQLErrorCodes;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Solution {
 
+    public static final String ISLIKED = "isliked";
     /* TABLES */
     private static final String MOVIES = "movies";
     private static final String RANKS = "ranks";
@@ -27,6 +27,8 @@ public class Solution {
     private static final String MOVIE_DESCRIPTION_COL = "description";
     private static final String MOVIE_NAME_COL = "mname";
     public static final String COUNT_COL = "count";
+    public static final String RANK_VIEWID_COL = "viewid";
+    public static final String RANK_MOVIEID_COL = "movieid";
 
     public static void createTables() {
         createViewerTable();
@@ -74,7 +76,7 @@ public class Solution {
 
 
     public static ReturnValue updateViewer(Viewer viewer) {
-        return updateRecord(VIEWERS, VIEWER_NAME_COL, viewer.getName(),VIEWER_ID_COL, viewer.getId());
+        return updateRecord(VIEWERS, VIEWER_NAME_COL, viewer.getName(), VIEWER_ID_COL, viewer.getId());
     }
 
     public static Viewer getViewer(Integer viewerId) {
@@ -137,30 +139,30 @@ public class Solution {
     public static Integer getMovieViewCount(Integer movieId) {
         return extractCount(
                 String.format("SELECT COUNT(viewid) FROM %s WHERE movieid=%d",
-                                RANKS, movieId)
+                        RANKS, movieId)
         );
     }
 
 
-    public static ReturnValue addMovieRating(Integer viewerId, Integer movieId, MovieRating rating)  {
-        final String WATCHED_VIEWID=RANKS+".viewid";
-        final String WATCHED_MOVIEID=RANKS+".movieid";
-
-        String conditionSubQuery="SELECT %s FROM %s WHERE %s=%d AND %s=%d";
-        String firstCond=String.format(conditionSubQuery,WATCHED_VIEWID,RANKS,WATCHED_VIEWID,viewerId,WATCHED_MOVIEID,movieId);
-        String secondCod=String.format(conditionSubQuery,WATCHED_MOVIEID,RANKS,WATCHED_VIEWID,viewerId,WATCHED_MOVIEID,movieId);
-        String mainQuery=String.format("INSERT INTO %s (viewid, movieid,isliked) VALUES (%s, %s,'%s') ON CONFLICT DO UPDATE",RANKS,firstCond,secondCod,rating.toString());
+    public static ReturnValue addMovieRating(Integer viewerId, Integer movieId, MovieRating rating) {
         try {
-            execute(mainQuery);
+            String rateStatus = rating != null ? "'" + rating.toString() + "'" : null;
+            int affectedRows = executeAndUpdate(
+                    String.format(
+                            "UPDATE %s SET %s =%s WHERE %s = %d AND %s = %d",
+                            RANKS, ISLIKED, rateStatus, RANK_VIEWID_COL, viewerId, RANK_MOVIEID_COL, movieId
+                    )
+            );
+            if (0 == affectedRows) return ReturnValue.NOT_EXISTS;
         } catch (SQLException e) {
-                return handleException(e);
+            return ReturnValue.ERROR;
         }
         return ReturnValue.OK;
     }
 
 
     public static ReturnValue removeMovieRating(Integer viewerId, Integer movieId) {
-        return removeRecord(RANKS, viewerId, movieId);
+        return addMovieRating(viewerId, movieId, null);
     }
 
     public static int getMovieLikesCount(int movieId) {
@@ -174,14 +176,30 @@ public class Solution {
     }
 
     public static ArrayList<Integer> getSimilarViewers(Integer viewerId) {
-
-        return null;
+        String subQuery = new StringBuilder()
+                .append("SELECT COUNT(other.viewid),other.viewid \n")
+                .append("FROM ranks AS other INNER JOIN ranks ON(ranks.movieid = other.movieid)\n")
+                .append("WHERE ranks.viewid=%d AND other.viewid!=%d\n")
+                .append("GROUP BY other.viewid").toString();
+        String mainQuery = new StringBuilder()
+                .append("SELECT temprank.viewid FROM (")
+                .append(subQuery)
+                .append(")AS temprank ")
+                .append("WHERE temprank.count*1.0/(SELECT COUNT(viewid) FROM ranks WHERE viewid = %d) >= 0.75\n")
+                .append("ORDER BY temprank.viewid ASC").toString();
+        String query = String.format(mainQuery, viewerId, viewerId, viewerId);
+        return extractIdsFromQuery(query);
     }
 
 
     public static ArrayList<Integer> mostInfluencingViewers() {
-
-        return null;
+        String query = new StringBuilder()
+                .append("SELECT viewid\n")
+                .append("FROM ranks\n")
+                .append("GROUP BY viewid \n")
+                .append("ORDER BY COUNT(viewid) DESC,COUNT(isliked) DESC, viewid ASC\n")
+                .append("LIMIT 10").toString();
+        return extractIdsFromQuery(query);
     }
 
 
@@ -197,6 +215,20 @@ public class Solution {
     }
 
     //------------------------------------------- PRIVATE METHODS ------------------------------------------------
+
+    private static ArrayList<Integer> extractIdsFromQuery(String query) {
+        try (Connection connection = DBConnector.getConnection()) {
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+                try (ResultSet rs = preparedStatement.executeQuery()) {
+                    return resultSetToList(rs);
+                }
+            }
+        } catch (SQLException e) {
+        }
+
+        return new ArrayList<>();
+    }
+
     private static Integer extractCount(String query) {
         try (Connection conn = DBConnector.getConnection()) {
             try (PreparedStatement statement = conn.prepareStatement(query)) {
@@ -252,7 +284,7 @@ public class Solution {
         try {
             execute(
                     String.format("INSERT INTO %s (viewid, movieid) VALUES (%d, %d);"
-                    , tableName, viewid, movieid)
+                            , tableName, viewid, movieid)
             );
         } catch (SQLException e) {
             return handleException(e);
@@ -269,11 +301,10 @@ public class Solution {
             );
             if (r == 0) return ReturnValue.NOT_EXISTS;
         } catch (SQLException e) {
-            return handleException(e);
+            return ReturnValue.ERROR;
         }
         return ReturnValue.OK;
     }
-
 
 
     private static int countRating(MovieRating islike, Integer movieId) {
@@ -320,7 +351,7 @@ public class Solution {
         try {
             execute(
                     String.format("CREATE TABLE %s (%s integer NOT NULL,%s text NOT NULL, PRIMARY KEY (%s),CHECK(%s>0))"
-                                ,VIEWERS,VIEWER_ID_COL,VIEWER_NAME_COL,VIEWER_ID_COL,VIEWER_ID_COL)
+                            , VIEWERS, VIEWER_ID_COL, VIEWER_NAME_COL, VIEWER_ID_COL, VIEWER_ID_COL)
             );
         } catch (SQLException e) {
             e.printStackTrace();
@@ -343,19 +374,21 @@ public class Solution {
             e.printStackTrace();
         }
         try {
-            execute("CREATE TABLE ranks(\n" +
-                    "viewid integer NOT NULL UNIQUE,\n" +
-                    "movieid integer NOT NULL UNIQUE,\n" +
-                    "isliked liked,\n" +
-                    "CONSTRAINT fk_movie FOREIGN KEY (movieid)\n" +
-                    "REFERENCES movies (mid)\n" +
-                    "ON UPDATE CASCADE\n" +
-                    "ON DELETE CASCADE,\n" +
-                    "CONSTRAINT fk_viewrs FOREIGN KEY (viewid)\n" +
-                    "REFERENCES viewers (vid)\n" +
-                    "ON UPDATE CASCADE\n" +
-                    "ON DELETE CASCADE\n" +
-                    ")");
+            execute(new StringBuilder()
+                    .append("CREATE TABLE ranks(\n")
+                    .append("viewid integer NOT NULL ,\n")
+                    .append("movieid integer NOT NULL ,\n")
+                    .append("isliked liked,\n")
+                    .append("CONSTRAINT pk_MovieAndView PRIMARY KEY (movieid,viewid),\n")
+                    .append("CONSTRAINT fk_movie FOREIGN KEY (movieid)\n")
+                    .append("REFERENCES movies (mid)\n")
+                    .append("ON UPDATE CASCADE\n")
+                    .append("ON DELETE CASCADE,\n")
+                    .append("CONSTRAINT fk_viewrs FOREIGN KEY (viewid)\n")
+                    .append("REFERENCES viewers (vid)\n")
+                    .append("ON UPDATE CASCADE\n")
+                    .append("ON DELETE CASCADE\n")
+                    .append(")").toString());
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -363,9 +396,9 @@ public class Solution {
 
     private static void createMovieTable() {
         try {
-            String query=String.format(
+            String query = String.format(
                     "CREATE TABLE %s (%s integer NOT NULL,%s text,%s text NOT NULL,PRIMARY KEY (%s),CHECK(%s>0))",
-                    MOVIES,MOVIE_ID_COL,MOVIE_NAME_COL,MOVIE_DESCRIPTION_COL,MOVIE_ID_COL,MOVIE_ID_COL
+                    MOVIES, MOVIE_ID_COL, MOVIE_NAME_COL, MOVIE_DESCRIPTION_COL, MOVIE_ID_COL, MOVIE_ID_COL
             );
             execute(query);
         } catch (SQLException e) {
@@ -403,8 +436,8 @@ public class Solution {
         return ReturnValue.OK;
     }
 
-    private static List<Integer> resultSetToList(ResultSet rs) throws SQLException {
-        List<Integer> list = new ArrayList<>();
+    private static ArrayList<Integer> resultSetToList(ResultSet rs) throws SQLException {
+        ArrayList<Integer> list = new ArrayList<>();
         while (rs.next()) {
             list.add(rs.getInt(1));
         }
