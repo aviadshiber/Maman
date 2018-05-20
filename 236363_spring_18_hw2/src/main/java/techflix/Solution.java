@@ -16,7 +16,6 @@ import java.util.Map;
 public class Solution {
 
     /* TABLES */
-    private static final String WATCHED = "watched";
     private static final String MOVIES = "movies";
     private static final String RANKS = "ranks";
     private static final String VIEWERS = "viewers";
@@ -32,23 +31,27 @@ public class Solution {
     public static void createTables() {
         createViewerTable();
         createMovieTable();
-        createWatchedTable();
         createRankTable();
     }
 
     public static void clearTables() {
-        clearTable(WATCHED);
-        clearTable(MOVIES);
         clearTable(RANKS);
+        clearTable(MOVIES);
         clearTable(VIEWERS);
     }
 
 
     public static void dropTables() {
-        dropTable(WATCHED);
-        dropTable(MOVIES);
         dropTable(RANKS);
+        try {
+            execute(String.format("DROP TYPE IF EXISTS %s", LIKED));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        dropTable(MOVIES);
         dropTable(VIEWERS);
+
+
     }
 
     public static ReturnValue createViewer(Viewer viewer) {
@@ -122,25 +125,37 @@ public class Solution {
 
 
     public static ReturnValue addView(Integer viewerId, Integer movieId) {
-        return addRecord(WATCHED, viewerId, movieId);
+        return addRecord(RANKS, viewerId, movieId);
     }
 
 
     public static ReturnValue removeView(Integer viewerId, Integer movieId) {
-        return removeRecord(WATCHED, viewerId, movieId);
+        return removeRecord(RANKS, viewerId, movieId);
     }
 
 
     public static Integer getMovieViewCount(Integer movieId) {
         return extractCount(
                 String.format("SELECT COUNT(viewid) FROM %s WHERE movieid=%d",
-                                WATCHED, movieId)
+                                RANKS, movieId)
         );
     }
 
 
-    public static ReturnValue addMovieRating(Integer viewerId, Integer movieId, MovieRating rating) {
-        return addRecord(RANKS, viewerId, movieId, rating);
+    public static ReturnValue addMovieRating(Integer viewerId, Integer movieId, MovieRating rating)  {
+        final String WATCHED_VIEWID=RANKS+".viewid";
+        final String WATCHED_MOVIEID=RANKS+".movieid";
+
+        String conditionSubQuery="SELECT %s FROM %s WHERE %s=%d AND %s=%d";
+        String firstCond=String.format(conditionSubQuery,WATCHED_VIEWID,RANKS,WATCHED_VIEWID,viewerId,WATCHED_MOVIEID,movieId);
+        String secondCod=String.format(conditionSubQuery,WATCHED_MOVIEID,RANKS,WATCHED_VIEWID,viewerId,WATCHED_MOVIEID,movieId);
+        String mainQuery=String.format("INSERT INTO %s (viewid, movieid,isliked) VALUES (%s, %s,'%s') ON CONFLICT DO UPDATE",RANKS,firstCond,secondCod,rating.toString());
+        try {
+            execute(mainQuery);
+        } catch (SQLException e) {
+                return handleException(e);
+        }
+        return ReturnValue.OK;
     }
 
 
@@ -205,7 +220,7 @@ public class Solution {
                 try (ResultSet rs = statement.executeQuery()) {
                     if (rs.next()) {
                         final ResultSetMetaData metaData = rs.getMetaData();
-                        for (int i = 0; i <= metaData.getColumnCount(); i++) {
+                        for (int i = 1; i <= metaData.getColumnCount(); i++) {
                             map.put(metaData.getColumnLabel(i), rs.getString(i));
                         }
 
@@ -259,15 +274,7 @@ public class Solution {
         return ReturnValue.OK;
     }
 
-    private static ReturnValue addRecord(String tableName, Integer viewid, Integer movieid, MovieRating rating) {
-        try {
-            execute(String.format("INSERT INTO %s (viewid, movieid,isliked) VALUES (%d, %d,'%s') ON CONFLICT DO UPDATE", tableName, viewid, movieid, rating.toString()));
-        } catch (SQLException e) {
-            return handleException(e);
-        }
 
-        return ReturnValue.OK;
-    }
 
     private static int countRating(MovieRating islike, Integer movieId) {
 
@@ -311,12 +318,10 @@ public class Solution {
 
     private static void createViewerTable() {
         try {
-            execute("CREATE TABLE viewers(\n" +
-                    "vid integer NOT NULL,\n" +
-                    "vname text  NOT NULL,\n" +
-                    "PRIMARY KEY (vid),\n" +
-                    "CHECK(vid>0)\n" +
-                    ")");
+            execute(
+                    String.format("CREATE TABLE %s (%s integer NOT NULL,%s text NOT NULL, PRIMARY KEY (%s),CHECK(%s>0))"
+                                ,VIEWERS,VIEWER_ID_COL,VIEWER_NAME_COL,VIEWER_ID_COL,VIEWER_ID_COL)
+            );
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -332,7 +337,7 @@ public class Solution {
 
     private static void createRankTable() {
         try {
-            execute(String.format("DROP TYPE IF EXISTS %s", LIKED));
+            //execute(String.format("DROP TYPE IF EXISTS %s", LIKED));
             execute(String.format("CREATE TYPE %s AS ENUM('%s','%s')", LIKED, MovieRating.LIKE.toString(), MovieRating.DISLIKE.toString()));
         } catch (SQLException e) {
             e.printStackTrace();
@@ -358,35 +363,16 @@ public class Solution {
 
     private static void createMovieTable() {
         try {
-            execute("CREATE TABLE movies(\n" +
-                    "mid integer NOT NULL,\n" +
-                    "mname text,\n" +
-                    "PRIMARY KEY (mid),\n" +
-                    "CHECK(mid>0)\n" +
-                    ")");
+            String query=String.format(
+                    "CREATE TABLE %s (%s integer NOT NULL,%s text,%s text NOT NULL,PRIMARY KEY (%s),CHECK(%s>0))",
+                    MOVIES,MOVIE_ID_COL,MOVIE_NAME_COL,MOVIE_DESCRIPTION_COL,MOVIE_ID_COL,MOVIE_ID_COL
+            );
+            execute(query);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private static void createWatchedTable() {
-        try {
-            execute("CREATE TABLE watched(\n" +
-                    "viewid integer NOT NULL UNIQUE,\n" +
-                    "movieid integer NOT NULL UNIQUE,\n" +
-                    "CONSTRAINT fk_movie FOREIGN KEY (movieid)\n" +
-                    "REFERENCES movies (mid)\n" +
-                    "ON UPDATE CASCADE\n" +
-                    "ON DELETE CASCADE,\n" +
-                    "CONSTRAINT fk_viewrs FOREIGN KEY (viewid)\n" +
-                    "REFERENCES viewers (vid)\n" +
-                    "ON UPDATE CASCADE\n" +
-                    "ON DELETE CASCADE\n" +
-                    ")");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
     private static ReturnValue handleException(SQLException e) {
         int eValue = Integer.valueOf(e.getSQLState());
@@ -411,7 +397,7 @@ public class Solution {
                 return ReturnValue.NOT_EXISTS;
             }
         } catch (SQLException e) {
-            return handleException(e);
+            return ReturnValue.ERROR;
         }
 
         return ReturnValue.OK;
