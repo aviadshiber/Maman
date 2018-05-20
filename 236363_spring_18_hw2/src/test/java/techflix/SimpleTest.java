@@ -12,13 +12,14 @@ public class SimpleTest extends  AbstractTest {
     @Test
     public void simpleTestCreateUser()
     {
+        Solution.dropTables();
+        Solution.createTables();
 
-
-        Viewer viewer1 = new Viewer();
-        viewer1.setName("viewer1");
-        viewer1.setId(1);
-        ReturnValue actual = Solution.createViewer(viewer1);
-        assertEquals(OK, actual);
+//        Viewer viewer1 = new Viewer();
+//        viewer1.setName("viewer1");
+//        viewer1.setId(1);
+//        ReturnValue actual = Solution.createViewer(viewer1);
+//        assertEquals(OK, actual);
 
 
     }
