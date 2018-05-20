@@ -7,26 +7,27 @@ import techflix.business.Viewer;
 import techflix.data.DBConnector;
 import techflix.data.PostgresSQLErrorCodes;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Solution {
 
-
+    /* TABLES */
     private static final String WATCHED = "watched";
     private static final String MOVIES = "movies";
     private static final String RANKS = "ranks";
     private static final String VIEWERS = "viewers";
     private static final String LIKED = "liked";
+    /* COLUMNS */
     private static final String VIEWER_NAME_COL = "vname";
     private static final String VIEWER_ID_COL = "vid";
     private static final String MOVIE_ID_COL = "mid";
     private static final String MOVIE_DESCRIPTION_COL = "description";
     private static final String MOVIE_NAME_COL = "mname";
+    public static final String COUNT_COL = "count";
 
     public static void createTables() {
         createViewerTable();
@@ -52,9 +53,11 @@ public class Solution {
 
     public static ReturnValue createViewer(Viewer viewer) {
         try {
-            execute(String.format("INSERT INTO %s(\n" +
-                    "\tvid, vname)\n" +
-                    "\tVALUES (%d, '%s');", VIEWERS, viewer.getId(), viewer.getName()));
+            execute(
+                    String.format("INSERT INTO %s (%s,%s) VALUES(%s,'%s')",
+                            VIEWERS, VIEWER_ID_COL, VIEWER_NAME_COL,
+                            viewer.getId(), viewer.getName())
+            );
         } catch (SQLException e) {
             return handleException(e);
         }
@@ -68,20 +71,15 @@ public class Solution {
 
 
     public static ReturnValue updateViewer(Viewer viewer) {
-        return updateRecord(VIEWERS, VIEWER_NAME_COL, viewer.getName(), VIEWER_ID_COL, viewer.getId());
+        return updateRecord(VIEWERS, VIEWER_NAME_COL, viewer.getName(),VIEWER_ID_COL, viewer.getId());
     }
 
     public static Viewer getViewer(Integer viewerId) {
         Viewer viewer = Viewer.badViewer();
-        try {
-            ResultSet rs = executeQuery(String.format("SELECT * FROM %s WHERE %s=%d", VIEWERS, VIEWER_ID_COL, viewerId));
-            if (rs.next()) {
-                viewer.setId(Integer.valueOf(rs.getString(VIEWER_ID_COL)));
-                viewer.setName(rs.getString(VIEWER_NAME_COL));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        Map<String, String> viewerRecord = extractRecord(VIEWERS, VIEWER_ID_COL, viewerId);
+        if (!viewerRecord.isEmpty()) {
+            viewer.setId(viewerId);
+            viewer.setName(viewerRecord.get(VIEWER_NAME_COL));
         }
         return viewer;
     }
@@ -89,9 +87,12 @@ public class Solution {
 
     public static ReturnValue createMovie(Movie movie) {
         try {
-            execute(String.format("INSERT INTO %s(\n" +
-                    "\tmid, mname,description)\n" +
-                    "\tVALUES (%d, '%s','%s');", MOVIES, movie.getId(), movie.getDescription()));
+            execute(
+                    String.format("INSERT INTO %s (%s,%s,%s) VALUES(%d,'%s','%s')"
+                            , MOVIES, MOVIE_ID_COL, MOVIE_NAME_COL, MOVIE_DESCRIPTION_COL,
+                            movie.getId(), movie.getName(), movie.getDescription()
+                    )
+            );
         } catch (SQLException e) {
             return handleException(e);
         }
@@ -107,17 +108,14 @@ public class Solution {
         return updateRecord(MOVIES, MOVIE_DESCRIPTION_COL, movie.getDescription(), MOVIE_ID_COL, movie.getId());
     }
 
+
     public static Movie getMovie(Integer movieId) {
         Movie movie = Movie.badMovie();
-        try {
-            ResultSet rs = executeQuery(String.format("SELECT * FROM %s WHERE mid=%d", MOVIES, movieId));
-            if (rs.next()) {
-                movie.setId(Integer.valueOf(rs.getString(MOVIE_ID_COL)));
-                movie.setName(rs.getString(MOVIE_NAME_COL));
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+        Map<String, String> movieRecord = extractRecord(MOVIES, MOVIE_ID_COL, movieId);
+        if (!movieRecord.isEmpty()) {
+            movie.setId(movieId);
+            movie.setName(movieRecord.get(MOVIE_NAME_COL));
+            movie.setDescription(movieRecord.get(MOVIE_DESCRIPTION_COL));
         }
         return movie;
     }
@@ -134,14 +132,10 @@ public class Solution {
 
 
     public static Integer getMovieViewCount(Integer movieId) {
-        try {
-            ResultSet rs = executeQuery(String.format("SELECT COUNT(viewid) FROM %s WHERE movieid=%d", WATCHED, movieId));
-            if (rs.next()) {
-                return Integer.valueOf(rs.getString("count"));
-            }
-        } catch (SQLException e) {
-        }
-        return 0;
+        return extractCount(
+                String.format("SELECT COUNT(viewid) FROM %s WHERE movieid=%d",
+                                WATCHED, movieId)
+        );
     }
 
 
@@ -188,6 +182,42 @@ public class Solution {
     }
 
     //------------------------------------------- PRIVATE METHODS ------------------------------------------------
+    private static Integer extractCount(String query) {
+        try (Connection conn = DBConnector.getConnection()) {
+            try (PreparedStatement statement = conn.prepareStatement(query)) {
+                try (ResultSet rs = statement.executeQuery()) {
+                    if (rs.next()) {
+                        return Integer.valueOf(rs.getString(COUNT_COL));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    private static Map<String, String> extractRecord(String table_name, String idCol, Integer id) {
+        Map<String, String> map = new HashMap<>();
+        try (Connection connection = DBConnector.getConnection()) {
+            String query = String.format("SELECT * FROM %s WHERE %s=%d", table_name, idCol, id);
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                try (ResultSet rs = statement.executeQuery()) {
+                    if (rs.next()) {
+                        final ResultSetMetaData metaData = rs.getMetaData();
+                        for (int i = 0; i <= metaData.getColumnCount(); i++) {
+                            map.put(metaData.getColumnLabel(i), rs.getString(i));
+                        }
+
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
     private static ReturnValue updateRecord(String tableName, String columnToUpdate, String value, String idColumn, int id) {
         try {
             int affectedRows = executeAndUpdate(
@@ -205,7 +235,10 @@ public class Solution {
 
     private static ReturnValue addRecord(String tableName, Integer viewid, Integer movieid) {
         try {
-            execute(String.format("INSERT INTO %s (viewid, movieid) VALUES (%d, %d);", tableName, viewid, movieid));
+            execute(
+                    String.format("INSERT INTO %s (viewid, movieid) VALUES (%d, %d);"
+                    , tableName, viewid, movieid)
+            );
         } catch (SQLException e) {
             return handleException(e);
         }
@@ -215,7 +248,10 @@ public class Solution {
 
     private static ReturnValue removeRecord(String tableName, Integer viewid, Integer movieid) {
         try {
-            int r = executeAndUpdate(String.format("DELETE FROM %s WHERE viewid = %d AND movieid = %d", tableName, viewid, movieid));
+            int r = executeAndUpdate(
+                    String.format("DELETE FROM %s WHERE viewid = %d AND movieid = %d",
+                            tableName, viewid, movieid)
+            );
             if (r == 0) return ReturnValue.NOT_EXISTS;
         } catch (SQLException e) {
             return handleException(e);
@@ -225,7 +261,7 @@ public class Solution {
 
     private static ReturnValue addRecord(String tableName, Integer viewid, Integer movieid, MovieRating rating) {
         try {
-            execute(String.format("INSERT INTO %s (viewid, movieid,isliked) VALUES (%d, %d,'%s') ON CONFLICT DO UPDATE;", tableName, viewid, movieid, rating.toString()));
+            execute(String.format("INSERT INTO %s (viewid, movieid,isliked) VALUES (%d, %d,'%s') ON CONFLICT DO UPDATE", tableName, viewid, movieid, rating.toString()));
         } catch (SQLException e) {
             return handleException(e);
         }
@@ -234,13 +270,13 @@ public class Solution {
     }
 
     private static int countRating(MovieRating islike, Integer movieId) {
-        try {
-            ResultSet rs = executeQuery(String.format("SELECT COUNT(movieid) FROM %s WHERE isliked='%s' AND movieid=%d", RANKS, islike.toString(), movieId));
-            if (rs.next())
-                return Integer.valueOf(rs.getString("count"));
-        } catch (SQLException e) {
-        }
-        return 0;
+
+        return extractCount(
+                String.format("SELECT COUNT(movieid) FROM %s WHERE isliked='%s' AND movieid=%d",
+                        RANKS, islike.toString(), movieId)
+        );
+
+
     }
 
     private static int executeAndUpdate(String query) throws SQLException {
@@ -365,18 +401,11 @@ public class Solution {
         else return ReturnValue.ERROR;
     }
 
-    private static ResultSet executeQuery(String query) throws SQLException {
-        try (Connection conn = DBConnector.getConnection()) {
-            try (PreparedStatement statement = conn.prepareStatement(query)) {
-                return statement.executeQuery();
-            }
-        }
-    }
 
     private static ReturnValue deleteRecord(String tableName, String idColumn, int id) {
         try {
             int affectedRows = executeAndUpdate(
-                    String.format("DELETE FROM %s WHERE %s = %d;"
+                    String.format("DELETE FROM %s WHERE %s = %d"
                             , tableName, idColumn, id));
             if (affectedRows == 0) {
                 return ReturnValue.NOT_EXISTS;
@@ -388,7 +417,7 @@ public class Solution {
         return ReturnValue.OK;
     }
 
-    private static List<Integer> ResultSetToList(ResultSet rs) throws SQLException {
+    private static List<Integer> resultSetToList(ResultSet rs) throws SQLException {
         List<Integer> list = new ArrayList<>();
         while (rs.next()) {
             list.add(rs.getInt(1));
