@@ -11,6 +11,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class Solution {
 
@@ -27,8 +28,26 @@ public class Solution {
     private static final String MOVIE_DESCRIPTION_COL = "description";
     private static final String MOVIE_NAME_COL = "mname";
     public static final String COUNT_COL = "count";
-    public static final String RANK_VIEWID_COL = "viewid";
-    public static final String RANK_MOVIEID_COL = "movieid";
+    public static final String RANK_VIEW_ID_COL = "viewid";
+    public static final String RANK_MOVIE_ID_COL = "movieid";
+    /* QUERIES */
+    public static final String SIMILAR_SUB_QUERY = new StringBuilder()
+            .append("SELECT COUNT(other.viewid),other.viewid \n")
+            .append("FROM ranks AS other INNER JOIN ranks ON(ranks.movieid = other.movieid)\n")
+            .append("WHERE ranks.viewid=%d AND other.viewid!=%d\n")
+            .append("GROUP BY other.viewid").toString();
+    public static final String SIMILAR_MAIN_QUERY = new StringBuilder()
+            .append("SELECT temprank.viewid FROM (")
+            .append(SIMILAR_SUB_QUERY)
+            .append(")AS temprank ")
+            .append("WHERE temprank.count*1.0/(SELECT COUNT(viewid) FROM ranks WHERE viewid = %d) >= 0.75\n")
+            .append("ORDER BY temprank.viewid ASC").toString();
+    public static final String MOST_INFLUENCING_VIEWERS_QUERY = new StringBuilder()
+            .append("SELECT viewid\n")
+            .append("FROM ranks\n")
+            .append("GROUP BY viewid \n")
+            .append("ORDER BY COUNT(viewid) DESC,COUNT(isliked) DESC, viewid ASC\n")
+            .append("LIMIT 10").toString();
 
     public static void createTables() {
         createViewerTable();
@@ -146,11 +165,12 @@ public class Solution {
 
     public static ReturnValue addMovieRating(Integer viewerId, Integer movieId, MovieRating rating) {
         try {
-            String rateStatus = rating != null ? "'" + rating.toString() + "'" : null;
+            Optional<MovieRating> rate=Optional.ofNullable(rating);
             int affectedRows = executeAndUpdate(
                     String.format(
                             "UPDATE %s SET %s =%s WHERE %s = %d AND %s = %d",
-                            RANKS, ISLIKED, rateStatus, RANK_VIEWID_COL, viewerId, RANK_MOVIEID_COL, movieId
+                            RANKS, ISLIKED, extractMovieRatingValue(rate),
+                            RANK_VIEW_ID_COL, viewerId, RANK_MOVIE_ID_COL, movieId
                     )
             );
             if (0 == affectedRows) return ReturnValue.NOT_EXISTS;
@@ -159,6 +179,8 @@ public class Solution {
         }
         return ReturnValue.OK;
     }
+
+
 
 
     public static ReturnValue removeMovieRating(Integer viewerId, Integer movieId) {
@@ -176,30 +198,13 @@ public class Solution {
     }
 
     public static ArrayList<Integer> getSimilarViewers(Integer viewerId) {
-        String subQuery = new StringBuilder()
-                .append("SELECT COUNT(other.viewid),other.viewid \n")
-                .append("FROM ranks AS other INNER JOIN ranks ON(ranks.movieid = other.movieid)\n")
-                .append("WHERE ranks.viewid=%d AND other.viewid!=%d\n")
-                .append("GROUP BY other.viewid").toString();
-        String mainQuery = new StringBuilder()
-                .append("SELECT temprank.viewid FROM (")
-                .append(subQuery)
-                .append(")AS temprank ")
-                .append("WHERE temprank.count*1.0/(SELECT COUNT(viewid) FROM ranks WHERE viewid = %d) >= 0.75\n")
-                .append("ORDER BY temprank.viewid ASC").toString();
-        String query = String.format(mainQuery, viewerId, viewerId, viewerId);
+        String query = String.format(SIMILAR_MAIN_QUERY, viewerId, viewerId, viewerId);
         return extractIdsFromQuery(query);
     }
 
 
     public static ArrayList<Integer> mostInfluencingViewers() {
-        String query = new StringBuilder()
-                .append("SELECT viewid\n")
-                .append("FROM ranks\n")
-                .append("GROUP BY viewid \n")
-                .append("ORDER BY COUNT(viewid) DESC,COUNT(isliked) DESC, viewid ASC\n")
-                .append("LIMIT 10").toString();
-        return extractIdsFromQuery(query);
+        return extractIdsFromQuery(MOST_INFLUENCING_VIEWERS_QUERY);
     }
 
 
@@ -299,7 +304,7 @@ public class Solution {
                     String.format("DELETE FROM %s WHERE viewid = %d AND movieid = %d",
                             tableName, viewid, movieid)
             );
-            if (r == 0) return ReturnValue.NOT_EXISTS;
+            if (0 == r) return ReturnValue.NOT_EXISTS;
         } catch (SQLException e) {
             return ReturnValue.ERROR;
         }
@@ -424,8 +429,7 @@ public class Solution {
     private static ReturnValue deleteRecord(String tableName, String idColumn, int id) {
         try {
             int affectedRows = executeAndUpdate(
-                    String.format("DELETE FROM %s WHERE %s = %d"
-                            , tableName, idColumn, id));
+                    String.format("DELETE FROM %s WHERE %s = %d", tableName, idColumn, id));
             if (affectedRows == 0) {
                 return ReturnValue.NOT_EXISTS;
             }
@@ -434,6 +438,9 @@ public class Solution {
         }
 
         return ReturnValue.OK;
+    }
+    private static String extractMovieRatingValue(Optional<MovieRating> rateStatus) {
+        return rateStatus.map(r-> "'" + r.toString() + "'").orElse("null");
     }
 
     private static ArrayList<Integer> resultSetToList(ResultSet rs) throws SQLException {

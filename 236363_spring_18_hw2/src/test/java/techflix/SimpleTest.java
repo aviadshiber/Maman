@@ -18,6 +18,7 @@ public class SimpleTest extends AbstractTest {
 
     @Test
     public void simpleTestCreateUser() {
+        Solution.clearTables();
         Solution.dropTables();
         Solution.createTables();
         Movie m1 = new Movie();
