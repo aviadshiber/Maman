@@ -18,10 +18,10 @@ public class SimpleTest extends AbstractTest {
 
     @Test
     public void simpleTestCreateUser() {
-        Solution.clearTables();
-        Solution.dropTables();
+        //Solution.clearTables();
+       // Solution.dropTables();
         Solution.createTables();
-        Movie m1 = new Movie();
+        /*Movie m1 = new Movie();
         m1.setId(1);
         m1.setName("shrek");
         m1.setDescription("stam text");
@@ -89,9 +89,14 @@ public class SimpleTest extends AbstractTest {
         System.out.println("the id of the first viewer how is similar to 2:"+ Solution.getSimilarViewers(2).get(0));
         System.out.println("most Influencing Viewers:");
         Solution.mostInfluencingViewers().forEach(id -> System.out.println(id));
-    }
+        Solution.addView(2,2);
+        System.out.println("get Movies Recommendations 1:");
+        Solution.getMoviesRecommendations(1).forEach(id -> System.out.println(id));
+        System.out.println("we should see nothing:");
+        Solution.getConditionalRecommendations(1,1).forEach(id -> System.out.println(id));
+    */}
 
-    private static void printTable(String table) {
+    public static void printTable(String table) {
         try (Connection conn = DBConnector.getConnection()) {
             try (PreparedStatement st = conn.prepareStatement("select * from " + table)) {
                 DBConnector.printResults(st.executeQuery());
