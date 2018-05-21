@@ -15,13 +15,14 @@ import java.util.Optional;
 
 public class Solution {
 
-    public static final String ISLIKED = "isliked";
+
     /* TABLES */
     private static final String MOVIES = "movies";
     private static final String RANKS = "ranks";
     private static final String VIEWERS = "viewers";
     private static final String LIKED = "liked";
     /* COLUMNS */
+    public static final String ISLIKED = "isliked";
     private static final String VIEWER_NAME_COL = "vname";
     private static final String VIEWER_ID_COL = "vid";
     private static final String MOVIE_ID_COL = "mid";
@@ -48,6 +49,35 @@ public class Solution {
             .append("GROUP BY viewid \n")
             .append("ORDER BY COUNT(viewid) DESC,COUNT(isliked) DESC, viewid ASC\n")
             .append("LIMIT 10").toString();
+    public static final String GET_MOVIES_RECOMMENDATIONS_QUERY = new StringBuilder().
+            append("SELECT simmovie.movieid\n").
+            append("FROM (SELECT DISTINCT ranks.movieid FROM ranks INNER JOIN (")
+            .append(SIMILAR_MAIN_QUERY)
+            .append(") AS similarview\n")
+            .append("ON (ranks.viewid = similarview.viewid)) AS simmovie LEFT JOIN \n")
+            .append("(SELECT * FROM ranks WHERE isliked = 'LIKE') AS likedrank\n")
+            .append("ON (simmovie.movieid = likedrank.movieid)\n")
+            .append("GROUP BY simmovie.movieid,likedrank.isliked\n")
+            .append("HAVING simmovie.movieid NOT IN (SELECT movieid FROM ranks WHERE viewid = %d)\n")
+            .append("ORDER BY COUNT(likedrank.isliked) DESC, simmovie.movieid ASC\n")
+            .append("LIMIT 10").toString();
+    public static final String SIMILAR_RANK = "SELECT DISTINCT similarview.viewid\n" +
+            "FROM similarview INNER JOIN ranks ON (similarview.viewid = ranks.viewid)\n" +
+            "WHERE ranks.isliked = \n" +
+            "(SELECT ranks.isliked FROM ranks WHERE ranks.viewid = %d AND ranks.movieid = %d) \n" +
+            " AND ranks.movieid = %d";
+    public static final String GET_CONDITIONAL_RECOMMENDATIONS_QUERY = new StringBuilder()
+            .append("SELECT simmovie.movieid\n")
+            .append("FROM (SELECT DISTINCT ranks.movieid FROM ranks INNER JOIN  (")
+            .append(SIMILAR_RANK)
+            .append(") ON (ranks.viewid = similarrank.viewid)) AS simmovie LEFT JOIN \n")
+            .append("(SELECT * FROM ranks WHERE isliked = 'LIKE') AS likedrank\n")
+            .append("ON (simmovie.movieid = likedrank.movieid)\n")
+            .append("GROUP BY simmovie.movieid,likedrank.isliked\n")
+            .append("HAVING simmovie.movieid NOT IN (SELECT movieid FROM ranks WHERE viewid = %d)\n")
+            .append("ORDER BY COUNT(likedrank.isliked) DESC, simmovie.movieid ASC\n")
+            .append("LIMIT 10")
+            .toString();
 
     public static void createTables() {
         createViewerTable();
@@ -180,9 +210,6 @@ public class Solution {
         return ReturnValue.OK;
     }
 
-
-
-
     public static ReturnValue removeMovieRating(Integer viewerId, Integer movieId) {
         return addMovieRating(viewerId, movieId, null);
     }
@@ -209,14 +236,12 @@ public class Solution {
 
 
     public static ArrayList<Integer> getMoviesRecommendations(Integer viewerId) {
-
-        return null;
+        return extractIdsFromQuery(String.format(GET_MOVIES_RECOMMENDATIONS_QUERY,viewerId, viewerId, viewerId,viewerId));
     }
 
 
     public static ArrayList<Integer> getConditionalRecommendations(Integer viewerId, int movieId) {
-
-        return null;
+        return extractIdsFromQuery(String.format(GET_CONDITIONAL_RECOMMENDATIONS_QUERY,viewerId, viewerId, viewerId,viewerId));
     }
 
     //------------------------------------------- PRIVATE METHODS ------------------------------------------------
@@ -410,7 +435,6 @@ public class Solution {
             e.printStackTrace();
         }
     }
-
 
     private static ReturnValue handleException(SQLException e) {
         int eValue = Integer.valueOf(e.getSQLState());
