@@ -8,11 +8,11 @@ import techflix.data.DBConnector;
 import techflix.data.PostgresSQLErrorCodes;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static java.util.stream.Stream.*;
 import static org.junit.Assert.assertEquals;
 
 public class Solution {
@@ -64,7 +64,7 @@ public class Solution {
             .append("ORDER BY COUNT(likedrank.isliked) DESC, simmovie.movieid ASC\n")
             .append("LIMIT 10").toString();
     public static final String SIMILAR_RANK = "SELECT DISTINCT similarview.viewid\n" +
-            "FROM ("+SIMILAR_MAIN_QUERY+") AS similarview INNER JOIN ranks ON (similarview.viewid = ranks.viewid)\n" +
+            "FROM (" + SIMILAR_MAIN_QUERY + ") AS similarview INNER JOIN ranks ON (similarview.viewid = ranks.viewid)\n" +
             "WHERE ranks.isliked = \n" +
             "(SELECT ranks.isliked FROM ranks WHERE ranks.viewid = %d AND ranks.movieid = %d) \n" +
             " AND ranks.movieid = %d";
@@ -108,9 +108,9 @@ public class Solution {
     public static ReturnValue createViewer(Viewer viewer) {
         try {
             execute(
-                    String.format("INSERT INTO %s (%s,%s) VALUES(%s,%s)",
-                            VIEWERS, VIEWER_ID_COL, VIEWER_NAME_COL,
-                            viewer.getId(), extractValueToSql(viewer.getName()))
+                    String.format("INSERT INTO %s (%s,%s) VALUES(?,?)",
+                            VIEWERS, VIEWER_ID_COL, VIEWER_NAME_COL)
+                    , of(viewer.getId(), viewer.getName())
             );
         } catch (SQLException e) {
             return handleException(e);
@@ -137,17 +137,17 @@ public class Solution {
         }
         return viewer;
     }
-    private  static String extractValueToSql(String value){
-        return Optional.ofNullable(value).map(v->"'"+v.toString()+"'" ).orElse(null);
+
+    private static String extractValueToSql(String value) {
+        return Optional.ofNullable(value).map(v -> "'" + v.toString() + "'").orElse(null);
     }
 
     public static ReturnValue createMovie(Movie movie) {
         try {
             execute(
-                    String.format("INSERT INTO %s (%s,%s,%s) VALUES(%d,%s,%s)"
-                            , MOVIES, MOVIE_ID_COL, MOVIE_NAME_COL, MOVIE_DESCRIPTION_COL,
-                            movie.getId(), extractValueToSql(movie.getName()), extractValueToSql(movie.getDescription())
-                    )
+                    String.format("INSERT INTO %s (%s,%s,%s) VALUES(?,?,?)"
+                            , MOVIES, MOVIE_ID_COL, MOVIE_NAME_COL, MOVIE_DESCRIPTION_COL
+                    ), of(movie.getId(), movie.getName(), movie.getDescription())
             );
         } catch (SQLException e) {
             return handleException(e);
@@ -197,13 +197,13 @@ public class Solution {
 
     public static ReturnValue addMovieRating(Integer viewerId, Integer movieId, MovieRating rating) {
         try {
-            Optional<MovieRating> rate=Optional.ofNullable(rating);
+            Optional<MovieRating> rate = Optional.ofNullable(rating);
             int affectedRows = executeAndUpdate(
                     String.format(
-                            "UPDATE %s SET %s =%s WHERE %s = %d AND %s = %d",
+                            "UPDATE %s SET %s =%s WHERE %s = ? AND %s = ?",
                             RANKS, ISLIKED, extractMovieRatingValue(rate),
-                            RANK_VIEW_ID_COL, viewerId, RANK_MOVIE_ID_COL, movieId
-                    )
+                            RANK_VIEW_ID_COL, RANK_MOVIE_ID_COL
+                    ), of(viewerId, movieId)
             );
             if (0 == affectedRows) return ReturnValue.NOT_EXISTS;
         } catch (SQLException e) {
@@ -216,10 +216,10 @@ public class Solution {
         try {
             int affectedRows = executeAndUpdate(
                     String.format(
-                            "UPDATE %s SET %s =%s WHERE %s = %d AND %s = %d AND (%s = 'LIKE' or %s = 'DISLIKE')",
+                            "UPDATE %s SET %s =%s WHERE %s = ? AND %s = ? AND (%s = 'LIKE' or %s = 'DISLIKE')",
                             RANKS, ISLIKED, "null",
-                            RANK_VIEW_ID_COL, viewerId, RANK_MOVIE_ID_COL, movieId,ISLIKED,ISLIKED
-                    )
+                            RANK_VIEW_ID_COL, RANK_MOVIE_ID_COL, ISLIKED, ISLIKED
+                    ), of(viewerId, movieId)
             );
             if (0 == affectedRows) return ReturnValue.NOT_EXISTS;
         } catch (SQLException e) {
@@ -250,12 +250,12 @@ public class Solution {
 
 
     public static ArrayList<Integer> getMoviesRecommendations(Integer viewerId) {
-        return extractIdsFromQuery(String.format(GET_MOVIES_RECOMMENDATIONS_QUERY,viewerId, viewerId, viewerId,viewerId));
+        return extractIdsFromQuery(String.format(GET_MOVIES_RECOMMENDATIONS_QUERY, viewerId, viewerId, viewerId, viewerId));
     }
 
 
     public static ArrayList<Integer> getConditionalRecommendations(Integer viewerId, int movieId) {
-        return extractIdsFromQuery(String.format(GET_CONDITIONAL_RECOMMENDATIONS_QUERY,viewerId, viewerId, viewerId,viewerId,movieId,movieId,viewerId));
+        return extractIdsFromQuery(String.format(GET_CONDITIONAL_RECOMMENDATIONS_QUERY, viewerId, viewerId, viewerId, viewerId, movieId, movieId, viewerId));
     }
 
     //------------------------------------------- PRIVATE METHODS ------------------------------------------------
@@ -299,7 +299,7 @@ public class Solution {
                         for (int i = 1; i <= metaData.getColumnCount(); i++) {
                             map.put(metaData.getColumnLabel(i), rs.getString(i));
                         }
-                        assertEquals(rs.next(),false); //it should be only 1 record in the table
+                        assertEquals(rs.next(), false); //it should be only 1 record in the table
 
                     }
                 }
@@ -313,8 +313,10 @@ public class Solution {
     private static ReturnValue updateRecord(String tableName, String columnToUpdate, String value, String idColumn, int id) {
         try {
             int affectedRows = executeAndUpdate(
-                    String.format("UPDATE %s SET %s=%s WHERE %s=%d;"
-                            , tableName, columnToUpdate, extractValueToSql(value), idColumn, id));
+                    String.format("UPDATE %s SET %s=? WHERE %s=?;"
+                            , tableName, columnToUpdate, idColumn)
+                    , of(value, id)
+            );
             if (affectedRows == 0) {
                 return ReturnValue.NOT_EXISTS;
             }
@@ -328,8 +330,8 @@ public class Solution {
     private static ReturnValue addRecord(String tableName, Integer viewid, Integer movieid) {
         try {
             execute(
-                    String.format("INSERT INTO %s (viewid, movieid) VALUES (%d, %d);"
-                            , tableName, viewid, movieid)
+                    String.format("INSERT INTO %s (viewid, movieid) VALUES (?, ?);"
+                            , tableName), of(viewid, movieid)
             );
         } catch (SQLException e) {
             return handleException(e);
@@ -341,8 +343,9 @@ public class Solution {
     private static ReturnValue removeRecord(String tableName, Integer viewid, Integer movieid) {
         try {
             int r = executeAndUpdate(
-                    String.format("DELETE FROM %s WHERE viewid = %d AND movieid = %d",
-                            tableName, viewid, movieid)
+                    String.format("DELETE FROM %s WHERE viewid = ? AND movieid = ?",
+                            tableName)
+                    , of(viewid, movieid)
             );
             if (0 == r) return ReturnValue.NOT_EXISTS;
         } catch (SQLException e) {
@@ -363,11 +366,16 @@ public class Solution {
     }
 
     private static int executeAndUpdate(String query) throws SQLException {
+        return executeAndUpdate(query, Stream.empty());
+    }
+
+    private static int executeAndUpdate(String query, Stream<?> params) throws SQLException {
         int affectedRows = 0;
         try (Connection conn = DBConnector.getConnection()) {
             try (PreparedStatement statement = conn.prepareStatement(
                     String.format(query))
             ) {
+                pushParamsToStatement(params, statement);
                 affectedRows = statement.executeUpdate();
             }
         }
@@ -384,9 +392,28 @@ public class Solution {
     }
 
     private static void execute(String query) throws SQLException {
+        execute(query, Stream.empty());
+    }
+
+    private static void execute(String query, Stream<?> values) throws SQLException {
         try (Connection conn = DBConnector.getConnection()) {
             try (PreparedStatement statement = conn.prepareStatement(query)) {
+                pushParamsToStatement(values, statement);
                 statement.execute();
+            }
+        }
+    }
+
+    private static void pushParamsToStatement(Stream<?> values, PreparedStatement statement) throws SQLException {
+        List<?> list = values.collect(Collectors.toList());
+        for (int i = 0, j = 1; i < list.size(); ++i, ++j) {
+            Object value = list.get(i);
+            if (value instanceof Integer)
+                statement.setInt(j, (Integer) value);
+            else if (value instanceof String)
+                statement.setString(j, (String) value);
+            else {
+                statement.setObject(j, value);
             }
         }
     }
@@ -478,8 +505,9 @@ public class Solution {
 
         return ReturnValue.OK;
     }
+
     private static String extractMovieRatingValue(Optional<MovieRating> rateStatus) {
-        return rateStatus.map(r-> "'" + r.toString() + "'").orElse("null");
+        return rateStatus.map(r -> "'" + r.toString() + "'").orElse("null");
     }
 
     private static ArrayList<Integer> resultSetToList(ResultSet rs) throws SQLException {

@@ -18,10 +18,10 @@ public class SimpleTest extends AbstractTest {
 
     @Test
     public void simpleTestCreateUser() {
-        //Solution.clearTables();
-       // Solution.dropTables();
+        Solution.clearTables();
+       Solution.dropTables();
         Solution.createTables();
-        /*Movie m1 = new Movie();
+        Movie m1 = new Movie();
         m1.setId(1);
         m1.setName("shrek");
         m1.setDescription("stam text");
@@ -94,7 +94,7 @@ public class SimpleTest extends AbstractTest {
         Solution.getMoviesRecommendations(1).forEach(id -> System.out.println(id));
         System.out.println("we should see nothing:");
         Solution.getConditionalRecommendations(1,1).forEach(id -> System.out.println(id));
-    */}
+    }
 
     public static void printTable(String table) {
         try (Connection conn = DBConnector.getConnection()) {
